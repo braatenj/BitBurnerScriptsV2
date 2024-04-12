@@ -1,0 +1,5 @@
+[
+    "vb-launch.js",
+    "lib/utils.js",
+    "BN1/attack-node.js"
+]

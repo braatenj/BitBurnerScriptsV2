@@ -3,22 +3,33 @@ export async function main(ns) {
 
 }
 
-function updateFiles(ns) {
+async function updateFiles(ns) {
+    ns.tprint("Getting latest Vladburner scripts...");
     let host = ns.getHostname();
-    let scripts = ns.ls(host, ".js");
+    let files = ns.ls(host, ".js");
     let githubRoot = "https://raw.githubusercontent.com/braatenj/BitBurnerScriptsV2/main/";
-    let scripts = [
-        "v"
-    ]
+    await ns.wget(githubRoot + "files.txt", "file_updates.txt");
+    let scripts = JSON.parse(ns.read("file_updates.txt"));
+
+    ns.rm("file_updates.txt");
     
-    for(const script of scripts) {
-        if(script === "vb-launch.js") {
+    for(const file of files) {
+        if(file === "vb-update.js") {
             continue;
         }
 
 
-        ns.rm(script);
+        ns.rm(file);
     }
+
+    for(const script of scripts) {
+        await ns.wget(githubRoot + script, script);
+    }
+
+    ns.tprint("Vladburner scripts updated, relaunching Vladburner");
+    ns.spawn("vb-launch.js", {threads: 1, spawnDelay: 1500}, "updated");
+
+
 
 
 }
