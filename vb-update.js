@@ -9,6 +9,7 @@ async function updateFiles(ns) {
     let files = ns.ls(host, ".js");
     let githubRoot = "https://raw.githubusercontent.com/braatenj/BitBurnerScriptsV2/main/";
     await ns.wget(githubRoot + "files.txt", "file_updates.txt");
+    ns.tprint(JSON.parse(ns.read("file_updates.txt")));
     let scripts = JSON.parse(ns.read("file_updates.txt"));
 
     ns.tprint("removing temp files.");
