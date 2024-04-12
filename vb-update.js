@@ -11,6 +11,7 @@ async function updateFiles(ns) {
     await ns.wget(githubRoot + "files.txt", "file_updates.txt");
     let scripts = JSON.parse(ns.read("file_updates.txt"));
 
+    ns.tprint("removing temp files.");
     ns.rm("file_updates.txt");
     
     for(const file of files) {
