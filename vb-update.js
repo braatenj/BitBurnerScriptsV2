@@ -1,5 +1,5 @@
 export async function main(ns) {
-    updateFiles(ns);
+    await updateFiles(ns);
 
 }
 
@@ -18,11 +18,11 @@ async function updateFiles(ns) {
             continue;
         }
 
-
         ns.rm(file);
     }
 
     for(const script of scripts) {
+        ns.tprint("Downloading " + script);
         await ns.wget(githubRoot + script, script);
     }
 
