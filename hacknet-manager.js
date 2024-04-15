@@ -1,5 +1,3 @@
-import { getPlayerMoney, TEN_MINUTES } from "./utils";
-
 export async function main(ns) {
     let nodeLimit = 8;
     let cpuLimit = 2;
@@ -10,9 +8,9 @@ export async function main(ns) {
     nodeCount = ns.hacknet.numNodes();
 
     while(nodeCount < nodeLimit) {
-        let nodePurchaseCost = ns.hacknet.getPurchaseCost();
+        let nodePurchaseCost = ns.hacknet.getPurchaseNodeCost();
 
-        if(nodePurchaseCost <= (getPlayerMoney() * moneyRatio)) {
+        if(nodePurchaseCost <= (ns.getServerMoneyAvailable() * moneyRatio)) {
             ns.hacknet.purchaseNode();
             nodeCount = ns.hacknet.numNodes();
         }

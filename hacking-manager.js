@@ -1,4 +1,4 @@
-import { Server, buildServerList, ONE_MINUTE, FIVE_MINUTES, TEN_MINUTES } from "./utils"
+import { Server, buildServerList, ONE_MINUTE, FIVE_MINUTES, TEN_MINUTES } from "./lib/utils"
 
 
 export async function main(ns) {
@@ -11,6 +11,7 @@ export async function main(ns) {
         for(let i = 0; i < targets.length; i++) {
             let target = targets[i];
             target.getRootAccess();
+            prepServer(target);
         }
 
 
@@ -24,5 +25,10 @@ function getCrackingTargets(servers) {
     let results = servers.filter((server) => {
         return (server.canHack() && server.canCrack() && !server.isRooted())
     })
+}
+
+async function prepServer(server) {
+    await ns.scp("prep-host.js", server.name, "home");
+    ns.exec("prep-host.js", server.name);
 }
 
