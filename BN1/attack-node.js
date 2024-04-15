@@ -1,6 +1,7 @@
 import { Server, buildServerList, TEN_MINUTES } from "./lib/utils.js"
 
 export async function main(ns) {
+    ns.disableLog(`ALL`);
     let scripts = [
         {"name": "hacking-manager.js", "ram": 2.9, "started": false},
         {"name": "hacknet-manager.js", "ram": 5.7, "started": false},
@@ -17,7 +18,7 @@ export async function main(ns) {
                 return (server.freeRam() >= script.ram) && server.isRooted();
             });
             possibleHosts.sort((a, b) => {
-                return freeRam() - b.freeRam();
+                return a.freeRam() - b.freeRam();
             })
 
             if(possibleHosts.length > 0) {
