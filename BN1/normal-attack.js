@@ -3,7 +3,7 @@ import { Server, buildServerList, TEN_MINUTES } from "./lib/utils.js"
 export async function main(ns) {
     ns.disableLog(`ALL`);
     let scripts = [
-        {"name": "hacking-manager.js", "ram": 2.9, "started": false},
+        {"name": "hacking-manager.js", "ram": 4.8, "started": false},
         {"name": "hacknet-manager.js", "ram": 5.7, "started": false},
     ];
 

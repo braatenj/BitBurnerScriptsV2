@@ -10,7 +10,7 @@ export async function main(ns) {
     while(nodeCount < nodeLimit) {
         let nodePurchaseCost = ns.hacknet.getPurchaseNodeCost();
 
-        if(nodePurchaseCost <= (ns.getServerMoneyAvailable() * moneyRatio)) {
+        if(nodePurchaseCost <= (ns.getServerMoneyAvailable("home") * moneyRatio)) {
             ns.hacknet.purchaseNode();
             nodeCount = ns.hacknet.numNodes();
         }
