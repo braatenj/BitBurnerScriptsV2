@@ -8,5 +8,6 @@
     "grow-target.js",
     "weaken-target.js",
     "BN1/attack-node.js",
-    "prep-host.js"
+    "prep-host-stage-1.js",
+    "prep-host-stage-2.js"
 ]

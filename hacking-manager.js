@@ -28,7 +28,8 @@ function getCrackingTargets(servers) {
 }
 
 async function prepServer(server) {
-    await ns.scp("prep-host.js", server.name, "home");
-    ns.exec("prep-host.js", server.name);
+    await ns.scp("prep-host-stage-1.js", server.name, "home");
+    await ns.scp("prep-host-stage-2.js", server.name, "home");
+    ns.exec("prep-host-stage-1.js", server.name);
 }
 
