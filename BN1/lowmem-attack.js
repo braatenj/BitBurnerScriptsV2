@@ -7,8 +7,11 @@ export async function main(ns) {
         for(let i = 0; i < crackableServers.length; i++) {
             let server = crackableServers[i];
             server.getRootAccess();
-            prepServer(server);
+            await prepServer(ns, server);
         }
+
+        crackableServers = servers.filter((server) => { return server.canCrack() && server.canHack() && !server.isRooted()});
+        await ns.sleep(5000);
     }
 
 
@@ -129,7 +132,7 @@ export function getAvailableCracks(ns) {
     return count;
 }
 
-async function prepServer(server) {
+async function prepServer(ns, server) {
     await ns.scp("prep-host-stage-1.js", server.name, "home");
     await ns.scp("prep-host-stage-2.js", server.name, "home");
     ns.exec("prep-host-stage-1.js", server.name);
