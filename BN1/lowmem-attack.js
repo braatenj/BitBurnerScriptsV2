@@ -1,23 +1,30 @@
 export async function main(ns) {
     let servers = buildServerList(ns);
+    let quitting = false;
 
-    let crackableServers = servers.filter((server) => { return server.canCrack() && server.canHack() && !server.isRooted()});
+    
 
-    while(crackableServers.length > 0) {
-        for(let i = 0; i < crackableServers.length; i++) {
-            let server = crackableServers[i];
-            server.getRootAccess();
-
-            if(server.maxRam < 4.3) {
-                await ns.scp("")
+    while(!quitting) {
+        let crackableServers = servers.filter((server) => { return server.canCrack() && server.canHack() && !server.isRooted()});
+            for(let i = 0; i < crackableServers.length; i++) {
+                let server = crackableServers[i];
+                server.getRootAccess();
+    
+                await prepServer(ns, server);
             }
 
-            await prepServer(ns, server);
+        
+        
+        if(ns.getHackingLevel() > 20) {
+            quitting = true;
         }
-
-        crackableServers = servers.filter((server) => { return server.canCrack() && server.canHack() && !server.isRooted()});
-        await ns.sleep(5000);
+        await ns.sleep(1000); 
     }
+
+    ns.spawn("BN1/normal-attack.js", {threads: 1, spawnDelay: 1000});
+    
+
+
 
 
 }
