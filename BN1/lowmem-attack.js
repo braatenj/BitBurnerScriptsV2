@@ -57,23 +57,23 @@ export class Server {
     getRootAccess() {
         if(this.canHack() && this.canCrack() && !this.isRooted()) {
             
-            if(ns.fileExists("brutessh.exe", "home")) {
+            if(this.ns.fileExists("brutessh.exe", "home")) {
                 this.ns.brutessh(this.name);
             }
 
-            if(ns.fileExists("ftpcrack.exe", "home")) {
+            if(this.ns.fileExists("ftpcrack.exe", "home")) {
                 this.ns.ftpcrack(this.name);
             }
     
-            if(ns.fileExists("relaysmtp.exe", "home")) {
+            if(this.ns.fileExists("relaysmtp.exe", "home")) {
                 this.ns.relaysmtp(this.name);
             }
 
-            if(ns.fileExists("httpworm.exe", "home")) {
+            if(this.ns.fileExists("httpworm.exe", "home")) {
                 this.ns.httpworm(this.name);
             }
     
-            if(ns.fileExists("sqlinject.exe", "home")) {
+            if(this.ns.fileExists("sqlinject.exe", "home")) {
                 this.ns.sqlinject(this.name);
             }
 
