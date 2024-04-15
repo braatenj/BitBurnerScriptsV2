@@ -7,6 +7,11 @@ export async function main(ns) {
         for(let i = 0; i < crackableServers.length; i++) {
             let server = crackableServers[i];
             server.getRootAccess();
+
+            if(server.maxRam < 4.3) {
+                await ns.scp("")
+            }
+
             await prepServer(ns, server);
         }
 
@@ -133,7 +138,18 @@ export function getAvailableCracks(ns) {
 }
 
 async function prepServer(ns, server) {
-    await ns.scp("prep-host-stage-1.js", server.name, "home");
-    await ns.scp("prep-host-stage-2.js", server.name, "home");
-    ns.exec("prep-host-stage-1.js", server.name);
+    let files = [
+        "/lib/utils.js",
+        "grow-target.js",
+        "hack-target.js",
+        "weaken-target.js",
+        "hacking-manager.js",
+        "hacknet-manager.js",
+        "prep-host-stage-1.js",
+        "prep-host-stage-2.js"
+    ];
+    await ns.scp(files, server.name, "home");
+
+    let maxThreads = Math.floor(server.maxRam / 2.5);
+    ns.exec("prep-host-stage-2.js", server.name, maxThreads);
 }
