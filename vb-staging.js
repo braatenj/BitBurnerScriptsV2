@@ -9,7 +9,7 @@ export async function main(ns) {
 
     if(getCurrentBitnode(ns) == 1 && isFreshStart(ns)) {
         ns.print(`No previous bitnode detected. Initializing "Fresh Start" protocol...`);
-        ns.spawn("BN1/attack-node.js", {threads: 1, spawnDelay: 1500});
+        ns.spawn("BN1/lowmem-attack.js", {threads: 1, spawnDelay: 1500});
 
     }
 }
