@@ -7,8 +7,7 @@
     "hack-target.js",
     "grow-target.js",
     "weaken-target.js",
-    "BN1/normal-attack.js",
-    "BN1/lowmem-attack.js",
+    "BN1/daemon.js",
     "prep-host-stage-1.js",
     "prep-host-stage-2.js"
 ]
