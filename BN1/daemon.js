@@ -270,7 +270,7 @@ export async function main(ns) {
         });
 
         if(possibleTargets.length > 0) {
-            return possibleTargets[0];
+            return possibleTargets[0].name;
         } else {
             return null;
         }
@@ -302,7 +302,7 @@ export async function main(ns) {
         });
 
         if(possibleTargets.length > 0) {
-            return possibleTargets[0];
+            return possibleTargets[0].name;
         } else {
             return null;
         }
