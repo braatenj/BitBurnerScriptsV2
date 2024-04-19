@@ -217,7 +217,7 @@ export async function main(ns) {
         let hackableTargets = [];
 
         for(let server of servers) {
-            if(ns.getServerMaxMoney(server) > 1 && (ns.getServerGetMaxMoney(server) == ns.getServerMoneyAvailable(server))) {
+            if(ns.getServerMaxMoney(server) > 1 && (ns.getServerMaxMoney(server) == ns.getServerMoneyAvailable(server))) {
                 if(ns.getServerSecurityLevel(server) == ns.getServerMinSecurityLevel(server)) {
                     let object = {
                         name: server,
