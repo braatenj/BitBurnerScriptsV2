@@ -358,6 +358,8 @@ export async function main(ns) {
 
         let hackTarget = getHackTarget();
         let weakTarget = getWeakenTarget();
+        ns.tprint("HackTarget: " + hackTarget);
+        ns.tprint("WeakTarget: " + weakTarget);
 
         if(hackTarget !== null) {
             if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), hackTarget, false, false) > 0) {
