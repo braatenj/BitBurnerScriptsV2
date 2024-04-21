@@ -362,13 +362,13 @@ export async function main(ns) {
         ns.tprint("WeakTarget: " + weakTarget);
 
         if(hackTarget !== null) {
-            if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), hackTarget, false, false) > 0) {
+            if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), [hackTarget,0], false, false) > 0) {
                 //couldn't find enough threads for hack at default levels
                 ns.print("Unable to find enough space to launch hack, reducing target amount");
-                if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, .9), hackTarget, false, false) > 0 ){
+                if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, .9), [hackTarget,0], false, false) > 0 ){
                     //couldnt find enough threads at reduced levels
                     ns.print("Unable to find enough space with reduced target amount, defaulting to tiny hack");
-                    runScriptOnAvailableServers(script.hack, 1, 'n00dles', false, false);
+                    runScriptOnAvailableServers(script.hack, 1, ['n00dles', 0], false, false);
                 }
                 else {
                     //we were unable to hack at the current threshold, reset it back to baseline
@@ -383,24 +383,24 @@ export async function main(ns) {
 
                 //try and weaken a secondary server
                 if(weakTarget !== null) {
-                    runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), weakTarget, true, true);
+                    runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true, true);
                 }
                 
             }
         } else if(weakTarget !== null){
             ns.tprint("No hacking target found, weaken instead");
             //no hacking targets, just need to grow and weaken servers
-            let result = runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), weakTarget, true, true );
+            let result = runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true, true );
             if(result == 0) {
                 let growTarget = getGrowTarget();
                 ns.tprint("growTarget: " + growTarget);
                 if(growTarget !== null) {
-                    runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), growTarget, true, true);
+                    runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), [growTarget, 0], true, true);
                 }
             }
         }
 
-        await ns.sleep(1000 * 60 * 10);
+        await ns.sleep(1000);
     }
 
 
