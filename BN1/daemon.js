@@ -82,7 +82,7 @@ export async function main(ns) {
             possibleServers = getServersWithAvailableRam(ramNeeded);
             if(possibleServers.length > 0) {
                 let host = possibleServers[0];
-                if(ns.exec(script, host, threads, args) !== 0) { return 0; }
+                if(ns.exec(script, host, threads, ...args) !== 0) { return 0; }
             }
         } else {
             //if partial allowed, just start executing on servers with free ram
@@ -94,9 +94,9 @@ export async function main(ns) {
                     let ramAvailable = getServerFreeRam(server);
                     let threadsAvailable = Math.floor(ramAvailable / ns.getScriptRam(script));
                     if(threadsAvailable >= threads) {
-                        if(ns.exec(script, server, threads, args) !== 0) { return 0; }
+                        if(ns.exec(script, server, threads, ...args) !== 0) { return 0; }
                     } else {
-                        ns.exec(script, server, threadsAvailable, args);
+                        ns.exec(script, server, threadsAvailable, ...args);
                         threads -= threadsAvailable;
                     }
                 }
@@ -117,9 +117,9 @@ export async function main(ns) {
                         let ramAvailable = getServerFreeRam(server);
                         let threadsAvailable = Math.floor(ramAvailable / ns.getScriptRam(script));
                         if(threadsAvailable >= threads) {
-                            if(ns.exec(script, server, threads, args) !== 0) { return 0; }
+                            if(ns.exec(script, server, threads, ...args) !== 0) { return 0; }
                         } else {
-                            pids.push(ns.exec(script, server, threadsAvailable, args));
+                            pids.push(ns.exec(script, server, threadsAvailable, ...args));
                             threads -= threadsAvailable;
                         }
                     }
