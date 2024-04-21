@@ -388,10 +388,12 @@ export async function main(ns) {
                 
             }
         } else if(weakTarget !== null){
+            ns.tprint("No hacking target found, weaken instead");
             //no hacking targets, just need to grow and weaken servers
             let result = runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), weakTarget, true, true );
             if(result == 0) {
                 let growTarget = getGrowTarget();
+                ns.tprint("growTarget: " + growTarget);
                 if(growTarget !== null) {
                     runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), growTarget, true, true);
                 }
