@@ -83,7 +83,13 @@ export async function main(ns) {
             possibleServers = getServersWithAvailableRam(ramNeeded);
             if(possibleServers.length > 0) {
                 let host = possibleServers[0];
-                if(ns.exec(script, host, threads, args) !== 0) { return 0; }
+                ns.print("executing " + script + " on " + host + " with " + threads + " threads")
+                if(ns.exec(script, host, threads, ...args) !== 0) { 
+                    ns.print("script executed successfully");
+                    return 0;
+                }
+            } else {
+                ns.print("No server with " + ramNeeded + "GB ram available.");
             }
         } else {
             //if partial allowed, just start executing on servers with free ram
@@ -95,9 +101,9 @@ export async function main(ns) {
                     let ramAvailable = getServerFreeRam(server);
                     let threadsAvailable = Math.floor(ramAvailable / ns.getScriptRam(script));
                     if(threadsAvailable >= threads) {
-                        if(ns.exec(script, server, threads, args) !== 0) { return 0; }
+                        if(ns.exec(script, server, threads, ...args) !== 0) { return 0; }
                     } else {
-                        ns.exec(script, server, threadsAvailable, args);
+                        ns.exec(script, server, threadsAvailable, ...args);
                         threads -= threadsAvailable;
                     }
                 }
@@ -118,9 +124,9 @@ export async function main(ns) {
                         let ramAvailable = getServerFreeRam(server);
                         let threadsAvailable = Math.floor(ramAvailable / ns.getScriptRam(script));
                         if(threadsAvailable >= threads) {
-                            if(ns.exec(script, server, threads, args) !== 0) { return 0; }
+                            if(ns.exec(script, server, threads, ...args) !== 0) { return 0; }
                         } else {
-                            pids.push(ns.exec(script, server, threadsAvailable, args));
+                            pids.push(ns.exec(script, server, threadsAvailable, ...args));
                             threads -= threadsAvailable;
                         }
                     }
@@ -347,6 +353,7 @@ export async function main(ns) {
             ];
 
             ns.scp(files, server, "home");
+            ns.print("Cracked Server: " + server);
         }
     }
 
@@ -359,15 +366,18 @@ export async function main(ns) {
 
         let hackTarget = getHackTarget();
         let weakTarget = getWeakenTarget();
+        ns.print("HackTarget: " + hackTarget);
+        ns.print("weakTarget: " + weakTarget);
+
 
         if(hackTarget !== null) {
-            if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), hackTarget, true, true) > 0) {
+            if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), [hackTarget,0], false, false) > 0) {
                 //couldn't find enough threads for hack at default levels
                 ns.print("Unable to find enough space to launch hack, reducing target amount");
-                if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, .9), hackTarget, true, true) > 0 ){
+                if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, .9), [hackTarget,0], false, false) > 0 ){
                     //couldnt find enough threads at reduced levels
                     ns.print("Unable to find enough space with reduced target amount, defaulting to tiny hack");
-                    runScriptOnAvailableServers(script.hack, 1, 'n00dles', false, false);
+                    runScriptOnAvailableServers(script.hack, 1, ['n00dles', 0], false, false);
                 }
                 else {
                     //we were unable to hack at the current threshold, reset it back to baseline
@@ -382,18 +392,25 @@ export async function main(ns) {
 
                 //try and weaken a secondary server
                 if(weakTarget !== null) {
-                    runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), weakTarget, true, true);
+                    runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true, true);
                 }
                 
             }
         } else if(weakTarget !== null){
+            ns.tprint("No hacking target found, weaken instead");
             //no hacking targets, just need to grow and weaken servers
-            let result = runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), weakTarget, true, true );
+            let result = runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true, true );
             if(result == 0) {
                 let growTarget = getGrowTarget();
                 if(growTarget !== null) {
-                    runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), growTarget, true, true);
+                    runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), [growTarget, 0], true, true);
                 }
+            }
+        } else {
+            ns.print("no hacking or weaken target, trying to grow");
+            let growTarget = getGrowTarget();
+            if(growTarget !== null) {
+                runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), [growTarget, 0], true, true);
             }
         }
 
