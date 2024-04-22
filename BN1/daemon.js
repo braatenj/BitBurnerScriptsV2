@@ -371,10 +371,10 @@ export async function main(ns) {
 
 
         if(hackTarget !== null) {
-            if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), [hackTarget,0], false, false) > 0) {
+            if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), [hackTarget,0], true, true) > 0) {
                 //couldn't find enough threads for hack at default levels
                 ns.print("Unable to find enough space to launch hack, reducing target amount");
-                if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, .9), [hackTarget,0], false, false) > 0 ){
+                if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, .9), [hackTarget,0], true, true) > 0 ){
                     //couldnt find enough threads at reduced levels
                     ns.print("Unable to find enough space with reduced target amount, defaulting to tiny hack");
                     runScriptOnAvailableServers(script.hack, 1, ['n00dles', 0], false, false);
