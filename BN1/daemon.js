@@ -365,6 +365,8 @@ export async function main(ns) {
 
         let hackTarget = getHackTarget();
         let weakTarget = getWeakenTarget();
+        ns.print("HackTarget: " + hackTarget);
+        ns.print("weakTarget: " + weakTarget);
 
 
         if(hackTarget !== null) {
