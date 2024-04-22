@@ -82,7 +82,13 @@ export async function main(ns) {
             possibleServers = getServersWithAvailableRam(ramNeeded);
             if(possibleServers.length > 0) {
                 let host = possibleServers[0];
-                if(ns.exec(script, host, threads, ...args) !== 0) { return 0; }
+                ns.print("executing " + script + " on " + host + " with " + threads + " threads")
+                if(ns.exec(script, host, threads, ...args) !== 0) { 
+                    ns.print("script executed successfully");
+                    return 0;
+                }
+            } else {
+                ns.print("No server with " + ramNeeded + "GB ram available.");
             }
         } else {
             //if partial allowed, just start executing on servers with free ram
@@ -346,6 +352,7 @@ export async function main(ns) {
             ];
 
             ns.scp(files, server, "home");
+            ns.print("Cracked Server: " + server);
         }
     }
 
@@ -358,8 +365,7 @@ export async function main(ns) {
 
         let hackTarget = getHackTarget();
         let weakTarget = getWeakenTarget();
-        ns.tprint("HackTarget: " + hackTarget);
-        ns.tprint("WeakTarget: " + weakTarget);
+
 
         if(hackTarget !== null) {
             if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), [hackTarget,0], false, false) > 0) {
@@ -393,10 +399,15 @@ export async function main(ns) {
             let result = runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true, true );
             if(result == 0) {
                 let growTarget = getGrowTarget();
-                ns.tprint("growTarget: " + growTarget);
                 if(growTarget !== null) {
                     runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), [growTarget, 0], true, true);
                 }
+            }
+        } else {
+            ns.print("no hacking or weaken target, trying to grow");
+            let growTarget = getGrowTarget();
+            if(growTarget !== null) {
+                runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), [growTarget, 0], true, true);
             }
         }
 
