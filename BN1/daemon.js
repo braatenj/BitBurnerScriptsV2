@@ -39,6 +39,7 @@ export async function main(ns) {
         for(let server of servers) {
             if(canCrack(server) && !ns.hasRootAccess(server)) {
                 doCrack(server);
+                ns.print("")
             }
         }
     }
@@ -360,10 +361,10 @@ export async function main(ns) {
         let weakTarget = getWeakenTarget();
 
         if(hackTarget !== null) {
-            if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), hackTarget, false, false) > 0) {
+            if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), hackTarget, true, true) > 0) {
                 //couldn't find enough threads for hack at default levels
                 ns.print("Unable to find enough space to launch hack, reducing target amount");
-                if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, .9), hackTarget, false, false) > 0 ){
+                if(runScriptOnAvailableServers(script.hack, getHackThreads(hackTarget, .9), hackTarget, true, true) > 0 ){
                     //couldnt find enough threads at reduced levels
                     ns.print("Unable to find enough space with reduced target amount, defaulting to tiny hack");
                     runScriptOnAvailableServers(script.hack, 1, 'n00dles', false, false);
@@ -396,7 +397,7 @@ export async function main(ns) {
             }
         }
 
-        await ns.sleep(1000);
+        await ns.sleep(1000*60*10);
     }
 
 
