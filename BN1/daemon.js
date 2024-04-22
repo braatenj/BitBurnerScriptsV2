@@ -53,7 +53,7 @@ export async function main(ns) {
         let results = [];
 
         for(let server of servers) {
-            if(ns.getServerMaxRam(server) - ns.getServerUsedRam(server) > ram) {
+            if(ns.getServerMaxRam(server) - ns.getServerUsedRam(server) > ram && ns.hasRootAccess(server)) {
                 results.push(server);
             }
         }
