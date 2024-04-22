@@ -223,12 +223,21 @@ export async function main(ns) {
 
         for(let server of servers) {
             let availableRam = ns.getServerMaxRam(server) - ns.getServerUsedRam(server);
-            if(availableRam > SCRIPT_BASE_RAM) {
-                freeRam += availableRam;
-            }
+            freeRam += availableRam;
         }
 
         return freeRam;
+    }
+
+    function getNetworkMaxRam() {
+        let servers = getAllServers();
+        let totalRam = 0;
+        for(let server of servers) {
+            let maxRam = ns.getServerMaxRam(server);
+            totalRam += maxRam;
+        }
+
+        return totalRam;
     }
 
     function getHackTarget() {
@@ -414,6 +423,7 @@ export async function main(ns) {
             //no hacking targets, just need to grow and weaken servers
             let result = runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true, true );
             if(result == 0) {
+                ns.print("All weaken threads distributed, using excess space to grow...");
                 let growTarget = getGrowTarget();
                 if(growTarget !== null) {
                     runScriptOnAvailableServers(script.grow, getGrowThreads(growTarget), [growTarget, 0], true, true);
@@ -427,6 +437,7 @@ export async function main(ns) {
             }
         }
 
+        ns.print(getNetworkRamAvailable() + " / " + getNetworkMaxRam() + "GB");
         await ns.sleep(1000*30);
     }
 

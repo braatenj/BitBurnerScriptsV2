@@ -4,6 +4,7 @@
     "lib/utils.js",
     "hacknet-manager.js",
     "hacking-manager.js",
+    "server-manager.js",
     "hack-target.js",
     "grow-target.js",
     "weaken-target.js",
