@@ -223,7 +223,9 @@ export async function main(ns) {
 
         for(let server of servers) {
             let availableRam = ns.getServerMaxRam(server) - ns.getServerUsedRam(server);
-            freeRam += availableRam;
+            if(ns.hasRootAccess(server)) {
+                freeRam += availableRam;
+            }
         }
 
         return freeRam;
@@ -234,7 +236,10 @@ export async function main(ns) {
         let totalRam = 0;
         for(let server of servers) {
             let maxRam = ns.getServerMaxRam(server);
-            totalRam += maxRam;
+            if(ns.hasRootAccess(server)) {
+                totalRam += maxRam;
+            }
+            
         }
 
         return totalRam;
@@ -437,7 +442,7 @@ export async function main(ns) {
             }
         }
 
-        ns.print(getNetworkRamAvailable() + " / " + getNetworkMaxRam() + "GB");
+        ns.print(getNetworkRamAvailable() + " / " + getNetworkMaxRam() + "GB (" + getNetworkMaxRam() - getNetworkRamAvailable() + "GB Used)" );
         await ns.sleep(1000*30);
     }
 
