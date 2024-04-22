@@ -91,6 +91,7 @@ export async function main(ns) {
                 }
             } else {
                 ns.print("No server with " + ramNeeded + "GB ram available.");
+                ns.print(getNetworkRamAvailable() + " / " + getNetworkMaxRam() + "GB");
             }
         } else {
             //if partial allowed, just start executing on servers with free ram
