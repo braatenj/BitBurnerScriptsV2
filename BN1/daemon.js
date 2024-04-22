@@ -71,6 +71,7 @@ export async function main(ns) {
      * @returns {number} on success returns 0, otherwise failure or partial success when using partial = true returns threads remaining
      */
     function runScriptOnAvailableServers(script, threads, args, spreading = false, partial = false) {
+        ns.print("Attempting to run script on available servers")
         if(threads < 1) { threads = 1 }
         let originalThreads = threads;
         let ramNeeded = 0;
@@ -101,9 +102,15 @@ export async function main(ns) {
                     let ramAvailable = getServerFreeRam(server);
                     let threadsAvailable = Math.floor(ramAvailable / ns.getScriptRam(script));
                     if(threadsAvailable >= threads) {
-                        if(ns.exec(script, server, threads, ...args) !== 0) { return 0; }
+                        ns.print("executing " + script + " on " + server + " with " + threads + " threads")
+                        if(ns.exec(script, server, threads, ...args) !== 0) {
+                            ns.print("script executed successfully");
+                            return 0;
+                        }
                     } else {
+                        ns.print("executing " + script + " on " + server + " with " + threadsAvailable + " threads");
                         ns.exec(script, server, threadsAvailable, ...args);
+                        ns.print("script executed successfully");
                         threads -= threadsAvailable;
                     }
                 }
@@ -124,7 +131,11 @@ export async function main(ns) {
                         let ramAvailable = getServerFreeRam(server);
                         let threadsAvailable = Math.floor(ramAvailable / ns.getScriptRam(script));
                         if(threadsAvailable >= threads) {
-                            if(ns.exec(script, server, threads, ...args) !== 0) { return 0; }
+                            ns.print("executing " + script + " on " + server + " with " + threads + " threads");
+                            if(ns.exec(script, server, threads, ...args) !== 0) {
+                                ns.print("script executed successfully");
+                                return 0;
+                            }
                         } else {
                             pids.push(ns.exec(script, server, threadsAvailable, ...args));
                             threads -= threadsAvailable;
@@ -175,11 +186,13 @@ export async function main(ns) {
     }
 
     function getWeakenThreads(server) {
+        if(server === null) { return 0; }
         let serverSecurityDifference = (ns.getServerSecurityLevel(server) - ns.getServerMinSecurityLevel(server));
         return Math.ceil(serverSecurityDifference / weakenPerThread);
     }
 
     function getGrowThreads(server) {
+        if(server === null) { return 0; }
         let serverMoneyAvailable = ns.getServerMoneyAvailable(server);
         let serverMaxMoney = ns.getServerMaxMoney(server);
         
@@ -397,7 +410,7 @@ export async function main(ns) {
                 
             }
         } else if(weakTarget !== null){
-            ns.tprint("No hacking target found, weaken instead");
+            ns.print("No hacking target found, weaken instead");
             //no hacking targets, just need to grow and weaken servers
             let result = runScriptOnAvailableServers(script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true, true );
             if(result == 0) {
@@ -414,7 +427,7 @@ export async function main(ns) {
             }
         }
 
-        await ns.sleep(1000*60*10);
+        await ns.sleep(1000*60);
     }
 
 
