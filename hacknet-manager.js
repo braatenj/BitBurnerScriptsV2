@@ -27,7 +27,7 @@ export async function main(ns) {
       }
     }
 
-    if (ns.hacknet.numNodes < HACKNET_NODE_LIMIT) {
+    if (ns.hacknet.numNodes() < HACKNET_NODE_LIMIT) {
       if (
         ns.hacknet.getPurchaseNodeCost() <
         ns.getServerMoneyAvailable("home") * HACKNET_SPEND_LIMIT
