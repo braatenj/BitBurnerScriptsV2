@@ -2,6 +2,8 @@ export async function main(ns) {
   ns.disableLog("ALL");
 
   const SCRIPT_BASE_RAM = 1.6;
+  //This is the percentage of max money to leave so .8 base TAKES 20% of MaxMoney
+  //lowering this increases amount taken
   let HACK_BASE_THRESHOLD = 0.8;
   let HACK_MOD_THRESHOLD = HACK_BASE_THRESHOLD;
   let HACK_INC_THRESHOLD = 0.01;
@@ -15,6 +17,12 @@ export async function main(ns) {
     weaken: "weaken-target.js",
     grow: "grow-target.js",
   };
+
+  let HACKNET_LIMIT = 16;
+  let HACKNET_LEVEL_LIMIT = 16;
+  let HACKNET_RAM_LIMIT = 32;
+  let HACKNET_CORE_LIMIT = 16;
+  let HACKNET_SPEND_LIMIT = 0.1;
 
   function getAllServers() {
     let results = [];
@@ -113,6 +121,7 @@ export async function main(ns) {
         ns.print(getNetworkRamAvailable() + " / " + getNetworkMaxRam() + "GB");
       }
     } else {
+      //spreading across multiple hosts is allowed
       //if partial allowed, just start executing on servers with free ram
       if (partial) {
         ramNeeded = ns.getScriptRam(script);
@@ -125,6 +134,7 @@ export async function main(ns) {
           let threadsAvailable = Math.floor(
             ramAvailable / ns.getScriptRam(script)
           );
+          //if there is enough space to exec all required threads do it
           if (threadsAvailable >= threads) {
             ns.print(
               "executing " +
@@ -150,11 +160,12 @@ export async function main(ns) {
                 " threads"
             );
             ns.exec(script, server, threadsAvailable, ...args);
-            ns.print("script executed successfully");
+            ns.print("partial script executed successfully");
             threads -= threadsAvailable;
           }
         }
       } else {
+        //cant be partial, but can be spread
         //do something to make sure all threads or none are fired
         let pids = [];
         let totalRamNeeded = threads * ns.getScriptRam(script);
@@ -490,8 +501,8 @@ export async function main(ns) {
             script.hack,
             getHackThreads(hackTarget, 0.9),
             [hackTarget, 0],
-            true,
-            true
+            false,
+            false
           ) > 0
         ) {
           //couldnt find enough threads at reduced levels
