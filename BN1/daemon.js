@@ -477,8 +477,8 @@ export async function main(ns) {
           script.hack,
           getHackThreads(hackTarget, HACK_MOD_THRESHOLD),
           [hackTarget, 0],
-          true,
-          true
+          false,
+          false
         ) > 0
       ) {
         //couldn't find enough threads for hack at default levels

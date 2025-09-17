@@ -10,7 +10,7 @@ export async function main(ns) {
   ns.disableLog(`ALL`);
   ns.print(`Initializing Vladburner fully automated scripts...`);
 
-  if (getCurrentBitnode(ns) == 1 && isFreshStart(ns)) {
+  if (getCurrentBitnode(ns) == 1) {
     ns.print(
       `No previous bitnode detected. Initializing "Fresh Start" protocol...`
     );
