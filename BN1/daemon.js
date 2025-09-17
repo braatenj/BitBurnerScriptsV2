@@ -18,11 +18,12 @@ export async function main(ns) {
     grow: "grow-target.js",
   };
 
-  let HACKNET_LIMIT = 16;
+  let HACKNET_NODE_LIMIT = 16;
   let HACKNET_LEVEL_LIMIT = 16;
   let HACKNET_RAM_LIMIT = 32;
   let HACKNET_CORE_LIMIT = 16;
   let HACKNET_SPEND_LIMIT = 0.1;
+  let HACKNET_MANAGER_RUNNING = false;
 
   function getAllServers() {
     let results = [];
@@ -88,6 +89,7 @@ export async function main(ns) {
     spreading = false,
     partial = false
   ) {
+
     ns.print("Attempting to run script on available servers");
     if (threads < 1) {
       threads = 1;
@@ -103,6 +105,9 @@ export async function main(ns) {
       possibleServers = getServersWithAvailableRam(ramNeeded);
       if (possibleServers.length > 0) {
         let host = possibleServers[0];
+        if(script === "hacknet-manager.js") {
+          ns.scp("hacknet-manager.js", host, "home");
+        }
         ns.print(
           "executing " +
             script +
@@ -476,6 +481,12 @@ export async function main(ns) {
   ns.toast("Vladburner Activated");
   while (true) {
     crackNewServers();
+    if(!HACKNET_MANAGER_RUNNING) {
+      if(runScriptOnAvailableServers("hacknet-manager.js", 1, [HACKNET_NODE_LIMIT, HACKNET_LEVEL_LIMIT, HACKNET_RAM_LIMIT, HACKNET_RAM_LIMIT, HACKNET_SPEND_LIMIT], false, false) == 0) {
+        HACKNET_MANAGER_RUNNING = true;
+        ns.toast("Vladburner: Hacknet Manager Launched.");
+      }
+    }
 
     let hackTarget = getHackTarget();
     let weakTarget = getWeakenTarget();
