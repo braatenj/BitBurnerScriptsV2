@@ -1,19 +1,34 @@
 export async function main(ns) {
-    let serverPrefix = "pserv";
-    let baseRam = 8;
-    let serverLimit = ns.getPurchasedServerLimit();
-    let purchasedServers = ns.getPurchasedServers();
+  let serverPrefix = "pserv";
+  let baseRam = 2 ** ns.args[0];
+  let maxRam = ns.getPurchasedServerMaxRam();
+  let spendLimit = ns.args[1];
+  let serverLimit = ns.getPurchasedServerLimit();
 
-    while(true) {
-        
-        
-        
-        
-        ns.print("Will check again in 10 minutes.");
-        await ns.sleep(1000 * 60 * 10);
+  while (true) {
+    let purchasedServers = ns.getPurchasedServers();
+    if (purchasedServers.length < serverLimit) {
+      if (getLargestPurchasableServer(ns) >= baseRam) {
+        baseRam = getLargestPurchasableServer(ns);
+        ns.purchaseServer(serverPrefix, getLargestPurchasableServer(ns));
+      }
     }
 
+    ns.print("Will check again in 10 minutes.");
+    await ns.sleep(1000 * 60 * 10);
+  }
+}
 
+function getLargestPurchasableServer(ns) {
+  let maxSpend = ns.getServerMoneyAvailable("home") * spendLimit;
+  let ramAfforded = 0;
+  for (let i = baseRamPower; i <= 20; i++) {
+    let ram = 2 ** i;
+    let serverCost = ns.getPurchasedServerCost(ram);
+    if (serverCost <= maxSpend) {
+      ramAfforded = ram;
+    }
+  }
 
-
+  return ramAfforded;
 }

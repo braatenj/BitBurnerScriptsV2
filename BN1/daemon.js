@@ -12,6 +12,7 @@ export async function main(ns) {
   let growHardeningPerThread = 0.004;
   let weakenPerThread = 0.05;
   let hackThreshold = 0.8;
+  let AdvancedDaemonRamThreshold = 32;
   let script = {
     hack: "hack-target.js",
     weaken: "weaken-target.js",
@@ -82,14 +83,13 @@ export async function main(ns) {
    * @param {boolean} partial  for loads that can be spread, is it alright to run less than the full amount of threads
    * @returns {number} on success returns 0, otherwise failure or partial success when using partial = true returns threads remaining
    */
-  function runScriptOnAvailableServers(
+  function runScript(
     script,
     threads,
     args,
     spreading = false,
     partial = false
   ) {
-
     ns.print("Attempting to run script on available servers");
     if (threads < 1) {
       threads = 1;
@@ -105,8 +105,8 @@ export async function main(ns) {
       possibleServers = getServersWithAvailableRam(ramNeeded);
       if (possibleServers.length > 0) {
         let host = possibleServers[0];
-        if(script === "hacknet-manager.js") {
-          ns.scp("hacknet-manager.js", host, "home");
+        if (!ns.fileExists(script, host)) {
+          ns.scp(script, host, "home");
         }
         ns.print(
           "executing " +
@@ -134,6 +134,10 @@ export async function main(ns) {
         for (let server of possibleServers) {
           if (threads == 0) {
             return 0;
+          }
+          //if the file isn't already on the server copy it before trying to exec it
+          if (!ns.fileExists(script, server)) {
+            ns.scp(script, server, "home");
           }
           let ramAvailable = getServerFreeRam(server);
           let threadsAvailable = Math.floor(
@@ -186,6 +190,12 @@ export async function main(ns) {
             if (threads == 0) {
               return 0;
             }
+
+            //if the file isn't already on the server copy it before trying to exec it
+            if (!ns.fileExists(script, server)) {
+              ns.scp(script, server, "home");
+            }
+
             let ramAvailable = getServerFreeRam(server);
             let threadsAvailable = Math.floor(
               ramAvailable / ns.getScriptRam(script)
@@ -480,9 +490,25 @@ export async function main(ns) {
   //MAIN LOGIC START
   ns.toast("Vladburner Activated");
   while (true) {
+    if (ns.getServerMaxRam("home") > 32) {
+    }
     crackNewServers();
-    if(!HACKNET_MANAGER_RUNNING) {
-      if(runScriptOnAvailableServers("hacknet-manager.js", 1, [HACKNET_NODE_LIMIT, HACKNET_LEVEL_LIMIT, HACKNET_RAM_LIMIT, HACKNET_RAM_LIMIT, HACKNET_SPEND_LIMIT], false, false) == 0) {
+    if (!HACKNET_MANAGER_RUNNING) {
+      if (
+        runScript(
+          "hacknet-manager.js",
+          1,
+          [
+            HACKNET_NODE_LIMIT,
+            HACKNET_LEVEL_LIMIT,
+            HACKNET_RAM_LIMIT,
+            HACKNET_RAM_LIMIT,
+            HACKNET_SPEND_LIMIT,
+          ],
+          false,
+          false
+        ) == 0
+      ) {
         HACKNET_MANAGER_RUNNING = true;
         ns.toast("Vladburner: Hacknet Manager Launched.");
       }
@@ -495,7 +521,7 @@ export async function main(ns) {
 
     if (hackTarget !== null) {
       if (
-        runScriptOnAvailableServers(
+        runScript(
           script.hack,
           getHackThreads(hackTarget, HACK_MOD_THRESHOLD),
           [hackTarget, 0],
@@ -508,7 +534,7 @@ export async function main(ns) {
           "Unable to find enough space to launch hack, reducing target amount"
         );
         if (
-          runScriptOnAvailableServers(
+          runScript(
             script.hack,
             getHackThreads(hackTarget, 0.9),
             [hackTarget, 0],
@@ -520,13 +546,7 @@ export async function main(ns) {
           ns.print(
             "Unable to find enough space with reduced target amount, defaulting to tiny hack"
           );
-          runScriptOnAvailableServers(
-            script.hack,
-            1,
-            ["n00dles", 0],
-            false,
-            false
-          );
+          runScript(script.hack, 1, ["n00dles", 0], false, false);
         } else {
           //we were unable to hack at the current threshold, reset it back to baseline
           HACK_MOD_THRESHOLD = HACK_BASE_THRESHOLD;
@@ -540,7 +560,7 @@ export async function main(ns) {
 
         //try and weaken a secondary server
         if (weakTarget !== null) {
-          runScriptOnAvailableServers(
+          runScript(
             script.weaken,
             getWeakenThreads(weakTarget),
             [weakTarget, 0],
@@ -552,7 +572,7 @@ export async function main(ns) {
     } else if (weakTarget !== null) {
       ns.print("No hacking target found, weaken instead");
       //no hacking targets, just need to grow and weaken servers
-      let result = runScriptOnAvailableServers(
+      let result = runScript(
         script.weaken,
         getWeakenThreads(weakTarget),
         [weakTarget, 0],
@@ -565,7 +585,7 @@ export async function main(ns) {
         );
         let growTarget = getGrowTarget();
         if (growTarget !== null) {
-          runScriptOnAvailableServers(
+          runScript(
             script.grow,
             getGrowThreads(growTarget),
             [growTarget, 0],
@@ -578,7 +598,7 @@ export async function main(ns) {
       ns.print("no hacking or weaken target, trying to grow");
       let growTarget = getGrowTarget();
       if (growTarget !== null) {
-        runScriptOnAvailableServers(
+        runScript(
           script.grow,
           getGrowThreads(growTarget),
           [growTarget, 0],

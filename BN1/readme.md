@@ -13,9 +13,9 @@ When first starting out the game and you are in bitnode 1 with no source files, 
 
 - Manage Factions
 - Manage Purchasing Servers
-- Manage Purchasing Hacknets
 - Manage Purchasing Augmentations
 - Manage Stock Market
+- Manage Crimes
 - BN1 Daemon does not check if hackTarget is already target of hack so its likely it will launch another hack at the target the next cycle if the hack time takes longer than the cycle wait (30s)
 
 #### Factions
@@ -47,3 +47,8 @@ checkFactionInvitations
 joinFaction()
 workForFaction()
 universityCourse() -> Train Hacking Early On
+
+Timings
+Hack = x
+Grow = 3.2x
+Weaken = 4x
