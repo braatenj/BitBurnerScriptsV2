@@ -18,14 +18,17 @@ export async function main(ns) {
   let HACKNET_LEVEL_LIMIT = 32;
   let HACKNET_RAM_LIMIT = 32;
   let HACKNET_CORE_LIMIT = 8;
-  let HACKNET_SPEND_LIMIT = 0.1;
+  let HACKNET_SPEND_LIMIT = 0.05;
   let HACKNET_MANAGER_RUNNING = false;
-  let SERVER_MIN_MEMORY_POWER = 4;
+  let SERVER_MIN_MEMORY_POWER = 5;
   let SERVER_SPEND_LIMIT = 0.1;
   let SERVER_MANAGER_RUNNING = false;
 
   //main loop
   while (true) {
+    //crack new servers as they become available
+    crackNewServers(ns);
+
     //if the hacknet manager is not running try and launch it.
     if (!HACKNET_MANAGER_RUNNING) {
       let pid = runScript(
@@ -52,7 +55,7 @@ export async function main(ns) {
         ns,
         SCRIPT.SERVER,
         1,
-        [SERVER_MIN_MEMORY, SERVER_SPEND_LIMIT],
+        [SERVER_MIN_MEMORY_POWER, SERVER_SPEND_LIMIT],
         false
       );
       if (pid != 0) {
@@ -75,6 +78,60 @@ export async function main(ns) {
 }
 
 /* Function Definitions Declared Below */
+
+  function crackNewServers() {
+    let servers = getAllServers();
+
+    for (let server of servers) {
+      if (canCrack(server) && !ns.hasRootAccess(server)) {
+        doCrack(server);
+        ns.print("");
+      }
+    }
+  }
+
+  function doCrack(server) {
+    if (ns.getServerNumPortsRequired(server) <= getAvailableCracks()) {
+      if (ns.fileExists("brutessh.exe", "home")) {
+        ns.brutessh(server);
+      }
+
+      if (ns.fileExists("ftpcrack.exe", "home")) {
+        ns.ftpcrack(server);
+      }
+
+      if (ns.fileExists("relaysmtp.exe", "home")) {
+        ns.relaysmtp(server);
+      }
+
+      if (ns.fileExists("httpworm.exe", "home")) {
+        ns.httpworm(server);
+      }
+
+      if (ns.fileExists("sqlinject.exe", "home")) {
+        ns.sqlinject(server);
+      }
+
+      ns.nuke(server);
+      let files = ["grow-target.js", "hack-target.js", "weaken-target.js"];
+
+      ns.scp(files, server, "home");
+      ns.print("Cracked Server: " + server);
+    }
+  }
+
+  function canCrack(server) {
+    return ns.getServerNumPortsRequired(server) <= getAvailableCracks()
+      ? true
+      : false;
+  }
+
+  function canHack(server) {
+    return ns.getServerRequiredHackingLevel(server) <= ns.getHackingLevel() &&
+      ns.hasRootAccess(server)
+      ? true
+      : false;
+  }
 
 function getAllServers(ns) {
   let visitedServers = [];
