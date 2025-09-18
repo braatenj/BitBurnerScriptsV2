@@ -502,7 +502,7 @@ export async function main(ns) {
             HACKNET_NODE_LIMIT,
             HACKNET_LEVEL_LIMIT,
             HACKNET_RAM_LIMIT,
-            HACKNET_RAM_LIMIT,
+            HACKNET_CORE_LIMIT,
             HACKNET_SPEND_LIMIT,
           ],
           false,
