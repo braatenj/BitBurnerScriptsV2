@@ -19,9 +19,9 @@ export async function main(ns) {
   };
 
   let HACKNET_NODE_LIMIT = 16;
-  let HACKNET_LEVEL_LIMIT = 16;
+  let HACKNET_LEVEL_LIMIT = 32;
   let HACKNET_RAM_LIMIT = 32;
-  let HACKNET_CORE_LIMIT = 16;
+  let HACKNET_CORE_LIMIT = 8;
   let HACKNET_SPEND_LIMIT = 0.1;
   let HACKNET_MANAGER_RUNNING = false;
 
