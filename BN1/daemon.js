@@ -25,6 +25,9 @@ export async function main(ns) {
   let HACKNET_CORE_LIMIT = 8;
   let HACKNET_SPEND_LIMIT = 0.1;
   let HACKNET_MANAGER_RUNNING = false;
+  let SERVER_MIN_MEMORY_POWER = 5;
+  let SERVER_SPEND_LIMIT = 0.1;
+  let SERVER_MANAGER_RUNNING = false;
 
   function getAllServers() {
     let results = [];
@@ -79,162 +82,58 @@ export async function main(ns) {
    * @param {string} script name of script that needs to be run
    * @param {number} threads number of threads for script, must be positive number
    * @param {string|Array} args string or array of strings for arguments
-   * @param {boolean} spreading can the threads be spread across multiple hosts
    * @param {boolean} partial  for loads that can be spread, is it alright to run less than the full amount of threads
-   * @returns {number} on success returns 0, otherwise failure or partial success when using partial = true returns threads remaining
+   * @returns {number[]} on success pid, failure returns [0]
    */
-  function runScript(
-    script,
-    threads,
-    args,
-    spreading = false,
-    partial = false
-  ) {
-    ns.print("Attempting to run script on available servers");
-    if (threads < 1) {
-      threads = 1;
-    }
-    let originalThreads = threads;
-    let ramNeeded = 0;
-    let possibleServers = [];
+  function runScript(ns, script, threads, args, partial = false) {
+  //we are not allowing partial number of threads to be run, so find server that can run all at once
+  if (!partial) {
+    let ramNeeded = ns.getScriptRam(script, "home") * threads;
+    let possibleHosts = getServersWithAvailableRam(ns, ramNeeded);
 
-    //can the script be spread across servers? (usually only weaken can)
-    //if not get a single server with available ram
-    if (!spreading) {
-      ramNeeded = threads * ns.getScriptRam(script);
-      possibleServers = getServersWithAvailableRam(ramNeeded);
-      if (possibleServers.length > 0) {
-        let host = possibleServers[0];
-        if (!ns.fileExists(script, host)) {
-          ns.scp(script, host, "home");
-        }
-        ns.print(
-          "executing " +
-            script +
-            " on " +
-            host +
-            " with " +
-            threads +
-            " threads"
-        );
-        if (ns.exec(script, host, threads, ...args) !== 0) {
-          ns.print("script executed successfully");
-          return 0;
-        }
-      } else {
-        ns.print("No server with " + ramNeeded + "GB ram available.");
-        ns.print(getNetworkRamAvailable() + " / " + getNetworkMaxRam() + "GB");
-      }
+    //if there is no host with enough space, return failure
+    if (possibleHosts.length === 0) {
+      return [0];
+    }
+
+    let host = possibleHosts[0];
+
+    //if the file doesn't already exist on the host, transfer it before executing it
+    if (!ns.fileExists(script, host)) {
+      ns.scp(script, host, "home");
+    }
+
+    let pid = ns.exec(script, host, threads, args);
+    if (pid === 0) {
+      return [0];
     } else {
-      //spreading across multiple hosts is allowed
-      //if partial allowed, just start executing on servers with free ram
-      if (partial) {
-        ramNeeded = ns.getScriptRam(script);
-        possibleServers = getServersWithAvailableRam(ramNeeded);
-        for (let server of possibleServers) {
-          if (threads == 0) {
-            return 0;
-          }
-          //if the file isn't already on the server copy it before trying to exec it
-          if (!ns.fileExists(script, server)) {
-            ns.scp(script, server, "home");
-          }
-          let ramAvailable = getServerFreeRam(server);
-          let threadsAvailable = Math.floor(
-            ramAvailable / ns.getScriptRam(script)
-          );
-          //if there is enough space to exec all required threads do it
-          if (threadsAvailable >= threads) {
-            ns.print(
-              "executing " +
-                script +
-                " on " +
-                server +
-                " with " +
-                threads +
-                " threads"
-            );
-            if (ns.exec(script, server, threads, ...args) !== 0) {
-              ns.print("script executed successfully");
-              return 0;
-            }
-          } else {
-            ns.print(
-              "executing " +
-                script +
-                " on " +
-                server +
-                " with " +
-                threadsAvailable +
-                " threads"
-            );
-            ns.exec(script, server, threadsAvailable, ...args);
-            ns.print("partial script executed successfully");
-            threads -= threadsAvailable;
-          }
-        }
-      } else {
-        //cant be partial, but can be spread
-        //do something to make sure all threads or none are fired
-        let pids = [];
-        let totalRamNeeded = threads * ns.getScriptRam(script);
-        let totalAvailableRam = 0;
-        let ramPerThread = ns.getScriptRam(script);
-        possibleServers = getServersWithAvailableRam(ramPerThread);
-        for (let server of possibleServers) {
-          totalAvailableRam += getServerFreeRam(server);
-        }
+      return [pid];
+    }
+  }
+  //we are allowing partial threads, so launch as many as we can
+  if (partial) {
+    let ramNeeded = ns.getScriptRam(script, "home");
+    let possibleHosts = getServersWithAvailableRam(ramNeeded);
 
-        if (totalAvailableRam * 0.9 > totalRamNeeded) {
-          for (let server of possibleServers) {
-            if (threads == 0) {
-              return 0;
-            }
-
-            //if the file isn't already on the server copy it before trying to exec it
-            if (!ns.fileExists(script, server)) {
-              ns.scp(script, server, "home");
-            }
-
-            let ramAvailable = getServerFreeRam(server);
-            let threadsAvailable = Math.floor(
-              ramAvailable / ns.getScriptRam(script)
-            );
-            if (threadsAvailable >= threads) {
-              ns.print(
-                "executing " +
-                  script +
-                  " on " +
-                  server +
-                  " with " +
-                  threads +
-                  " threads"
-              );
-              if (ns.exec(script, server, threads, ...args) !== 0) {
-                ns.print("script executed successfully");
-                return 0;
-              }
-            } else {
-              pids.push(ns.exec(script, server, threadsAvailable, ...args));
-              threads -= threadsAvailable;
-            }
-          }
-
-          ns.print(
-            "Unable to find enough space to launch all threads, killing partial scripts"
-          );
-          if (threads != 0) {
-            for (let pid of pids) {
-              ns.kill(pid);
-            }
-            return originalThreads;
-          }
-        }
-      }
+    if (possibleHosts.length === 0) {
+      return [0];
     }
 
-    return threads;
+    let host = possibleHosts[0];
+    let threadsAvailable = Math.floor(getServerRamFree(ns, host) / ramNeeded);
+
+    if (threadsAvailable === 0) {
+      return [0];
+    }
+
+    if (!ns.fileExists(script, host)) {
+      ns.scp(script, host, "home");
+    }
+
+    let pid = ns.exec(script, host, Math.min(threads, threadsAvailable), args);
+    return [pid];
   }
+}
 
   function getAvailableCracks() {
     let count = 0;
@@ -490,12 +389,12 @@ export async function main(ns) {
   //MAIN LOGIC START
   ns.toast("Vladburner Activated");
   while (true) {
-    if (ns.getServerMaxRam("home") > 32) {
-    }
+
     crackNewServers();
     if (!HACKNET_MANAGER_RUNNING) {
       if (
         runScript(
+          ns,
           "hacknet-manager.js",
           1,
           [
@@ -505,110 +404,49 @@ export async function main(ns) {
             HACKNET_CORE_LIMIT,
             HACKNET_SPEND_LIMIT,
           ],
-          false,
           false
-        ) == 0
+        ) != 0
       ) {
         HACKNET_MANAGER_RUNNING = true;
         ns.toast("Vladburner: Hacknet Manager Launched.");
       }
     }
 
-    let hackTarget = getHackTarget();
-    let weakTarget = getWeakenTarget();
-    ns.print("HackTarget: " + hackTarget);
-    ns.print("weakTarget: " + weakTarget);
-
-    if (hackTarget !== null) {
-      if (
-        runScript(
-          script.hack,
-          getHackThreads(hackTarget, HACK_MOD_THRESHOLD),
-          [hackTarget, 0],
-          false,
-          false
-        ) > 0
-      ) {
-        //couldn't find enough threads for hack at default levels
-        ns.print(
-          "Unable to find enough space to launch hack, reducing target amount"
-        );
-        if (
-          runScript(
-            script.hack,
-            getHackThreads(hackTarget, 0.9),
-            [hackTarget, 0],
-            false,
-            false
-          ) > 0
-        ) {
-          //couldnt find enough threads at reduced levels
-          ns.print(
-            "Unable to find enough space with reduced target amount, defaulting to tiny hack"
-          );
-          runScript(script.hack, 1, ["n00dles", 0], false, false);
-        } else {
-          //we were unable to hack at the current threshold, reset it back to baseline
-          HACK_MOD_THRESHOLD = HACK_BASE_THRESHOLD;
-        }
-      } else {
-        //we were able to hack at the current threshold, decrease by one increment
-        HACK_MOD_THRESHOLD -= HACK_INC_THRESHOLD;
-        if (HACK_MOD_THRESHOLD > HACK_MAX_THRESHOLD) {
-          HACK_MOD_THRESHOLD = HACK_MAX_THRESHOLD;
-        }
-
-        //try and weaken a secondary server
-        if (weakTarget !== null) {
-          runScript(
-            script.weaken,
-            getWeakenThreads(weakTarget),
-            [weakTarget, 0],
-            true,
-            true
-          );
-        }
-      }
-    } else if (weakTarget !== null) {
-      ns.print("No hacking target found, weaken instead");
-      //no hacking targets, just need to grow and weaken servers
-      let result = runScript(
-        script.weaken,
-        getWeakenThreads(weakTarget),
-        [weakTarget, 0],
-        true,
-        true
-      );
-      if (result == 0) {
-        ns.print(
-          "All weaken threads distributed, using excess space to weaken second target"
-        );
-        let growTarget = getGrowTarget();
-        if (growTarget !== null) {
-          runScript(
-            script.grow,
-            getGrowThreads(growTarget),
-            [growTarget, 0],
-            true,
-            true
-          );
-        }
-      }
-    } else {
-      ns.print("no hacking or weaken target, trying to grow");
-      let growTarget = getGrowTarget();
-      if (growTarget !== null) {
-        runScript(
-          script.grow,
-          getGrowThreads(growTarget),
-          [growTarget, 0],
-          true,
-          true
-        );
+    if(!SERVER_MANAGER_RUNNING) {
+      if(runScript("server-manager.js", 1, [SERVER_MIN_MEMORY_POWER, SERVER_SPEND_LIMIT], false, false) != 0) {
+        SERVER_MANAGER_RUNNING = true;
+        ns.toast("Vladburner: Server Manager Launched.");
       }
     }
 
+    let hackTarget = getHackTarget();
+    let weakTarget = getWeakenTarget();
+    let growTarget = getGrowTarget();
+
+    ns.print("HackTarget: " + hackTarget);
+    ns.print("weakTarget: " + weakTarget);
+    ns.print("growTarget: " + growTarget);
+
+    if(weakTarget !== null) {
+      const pids = runScript(ns, script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true);
+    }
+
+    if(growTarget != null) {
+      const pids = runScript(ns, script.grow, getGrowThreads(growTarget), [growTarget, 0], true);
+    }
+
+    if(hacktarget != null) {
+      const pids = runScript(ns, script.hack, getHackThreads(hackTarget, HACK_MOD_THRESHOLD), [hackTarget, 0], false);
+    }
+
     ns.print(getNetworkRamAvailable() + " / " + getNetworkMaxRam() + "GB");
-    await ns.sleep(1000 * 30);
+    await ns.sleep(1000 * 10);
+  }
+}
+
+async function WaitPids(ns, pids) {
+  if (!Array.isArray(pids)) pids = [pids];
+  while (pids.some((p) => ns.isRunning(p))) {
+    await ns.sleep(5);
   }
 }
