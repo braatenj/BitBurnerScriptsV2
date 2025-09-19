@@ -413,7 +413,7 @@ export async function main(ns) {
     }
 
     if(!SERVER_MANAGER_RUNNING) {
-      if(runScript(ns, "server-manager.js", 1, [SERVER_MIN_MEMORY_POWER, SERVER_SPEND_LIMIT], false, false) != 0) {
+      if(runScript(ns, "server-manager.js", 1, [SERVER_MIN_MEMORY_POWER, SERVER_SPEND_LIMIT], false) != 0) {
         SERVER_MANAGER_RUNNING = true;
         ns.toast("Vladburner: Server Manager Launched.");
       }
@@ -427,7 +427,7 @@ export async function main(ns) {
     ns.print("weakTarget: " + weakTarget);
     ns.print("growTarget: " + growTarget);
 
-    if(weakTarget !== null) {
+    if(weakTarget != null) {
       const pids = runScript(ns, script.weaken, getWeakenThreads(weakTarget), [weakTarget, 0], true);
     }
 
