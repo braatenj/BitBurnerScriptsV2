@@ -281,7 +281,7 @@ function runScript(ns, script, threads, args, partial = false) {
       ns.scp(script, host, "home");
     }
 
-    let pid = ns.exec(script, host, threads, args);
+    let pid = ns.exec(script, host, threads, ...args);
     if (pid === 0) {
       return [0];
     } else {
@@ -308,7 +308,7 @@ function runScript(ns, script, threads, args, partial = false) {
       ns.scp(script, host, "home");
     }
 
-    let pid = ns.exec(script, host, Math.min(threads, threadsAvailable), args);
+    let pid = ns.exec(script, host, Math.min(threads, threadsAvailable), ...args);
     return [pid];
   }
 }
