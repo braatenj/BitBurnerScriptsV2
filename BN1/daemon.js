@@ -57,7 +57,7 @@ export async function main(ns) {
     }
   }
 
-  function getServerRamFree(server) {
+  function getServerRamFree(ns, server) {
     return ns.getServerMaxRam(server) - ns.getServerUsedRam(server);
   }
 
