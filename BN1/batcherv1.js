@@ -92,7 +92,7 @@ export async function main(ns) {
                 while (block.ram >= 1.75) {
                     await ns.sleep(5)
                     if (w1threads == 0 && gthreads == 0 && w2threads == 0) break;
-                    const blockMaxThreads = block.ram / 1.75;
+                    const blockMaxThreads = Math.floor(block.ram / 1.75);
                     if (w1threads != 0) {
                         let threads = Math.min(w1threads, blockMaxThreads);
                         const job = new Job(ns, 'hWeaken', batchDetails, block.server);
