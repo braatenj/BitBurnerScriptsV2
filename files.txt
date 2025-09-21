@@ -10,6 +10,7 @@
     "weaken-target.js",
     "BN1/daemon.js",
     "BN1/daemon-advanced.js",
+    "BN1/batcherv1.js",
     "prep-host-stage-1.js",
     "prep-host-stage-2.js",
     "serverReport.js"

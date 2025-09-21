@@ -1,12 +1,13 @@
 export async function main(ns) {
-    let delay = 0;
-    let target;
-
-    if(ns.args.length == 2) {
-        target = ns.args[0];
-        delay = ns.args[1];
+    let job = JSON.parse(ns.args[0]);
+    //calculate delay
+    let delay = job.endTime - job.runTime - performance.now();
+    if (delay < 0) {
+        ns.tprintf('WARN: Action was %dms too late', delay);
+        delay = 0;
     }
 
 
-    await ns.grow(target, {additionalMSec: delay});
+    await ns.grow(job.target, { additionalMsec: delay });
+
 }

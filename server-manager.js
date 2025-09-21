@@ -1,6 +1,6 @@
 export async function main(ns) {
   let serverPrefix = "pserv";
-  let baseRam = 2 ** ns.args[0];
+  let baseRam = ns.args[0];
   let maxRam = ns.getPurchasedServerMaxRam();
   let spendLimit = ns.args[1];
   let serverLimit = ns.getPurchasedServerLimit();
@@ -9,8 +9,8 @@ export async function main(ns) {
     let purchasedServers = ns.getPurchasedServers();
     if (purchasedServers.length < serverLimit) {
       if (getLargestPurchasableServer(ns) >= baseRam) {
-        baseRam = getLargestPurchasableServer(ns);
-        ns.purchaseServer(serverPrefix, getLargestPurchasableServer(ns));
+        baseRam = getLargestPurchasableServer(ns, spendLimit);
+        ns.purchaseServer(serverPrefix, getLargestPurchasableServer(ns, spendLimit));
       }
     }
 
@@ -19,7 +19,7 @@ export async function main(ns) {
   }
 }
 
-function getLargestPurchasableServer(ns) {
+function getLargestPurchasableServer(ns, spendLimit) {
   let maxSpend = ns.getServerMoneyAvailable("home") * spendLimit;
   let ramAfforded = 0;
   for (let i = baseRamPower; i <= 20; i++) {
