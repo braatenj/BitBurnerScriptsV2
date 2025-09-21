@@ -1,4 +1,4 @@
-/** @param {NS} ns */
+
 const ACTIONS = ['hack', 'hWeaken', 'grow', 'gWeaken'];
 const SCRIPTS = { hack: 'hack-target.js', hWeaken: 'weaken-target.js', grow: 'grow-target.js', gWeaken: 'weaken-target.js' };
 const WORKERS = ['hack-target.js', 'weaken-target.js', 'grow-target.js'];
@@ -6,12 +6,52 @@ const OFFSETS = { hack: 0, hWeaken: 1, grow: 2, gWeaken: 3 };
 const COSTS = { hack: 1.7, hWeaken: 1.75, grow: 1.75, gWeaken: 1.75 };
 const CRACKS = ['brutessh.exe', 'ftpcrack.exe', 'relaysmtp.exe', 'httpworm.exe', 'sqlinject.exe'];
 
+
+
+
+/** @param {NS} ns */
 export async function main(ns) {
+    //define some values to be used in the program
+    let HACKNET_NODE_LIMIT = 16;
+  let HACKNET_LEVEL_LIMIT = 32;
+  let HACKNET_RAM_LIMIT = 32;
+  let HACKNET_CORE_LIMIT = 8;
+  let HACKNET_SPEND_LIMIT = 0.05;
+  let HACKNET_MANAGER_RUNNING = false;
+  let SERVER_MIN_MEMORY_POWER = 5;
+  let SERVER_SPEND_LIMIT = 0.1;
+  let SERVER_MANAGER_RUNNING = false;
+
+
     ns.disableLog('ALL');
     let game = new Game(ns);
     getAllServers(ns, true);
     while (true) {
         crackNewServers(ns);
+
+        if(game.getNextBatchID() % 200 == 0) {
+            await ns.sleep(1000 * 60);
+        }
+        
+
+        if(!SERVER_MANAGER_RUNNING) {
+                let snapshot = new RamSnapshot(ns, getAllServers(ns));
+        let pRam = snapshot.copyBlocks();
+        for(const block of pRam) {
+            if(block.ram > 5.35) {
+                ns.scp("server-manager.js", block.server, "home");
+                let pid = ns.exec("server-manager.js", block.server, 1);
+                if(pid != 0) {
+                    SERVER_MANAGER_RUNNING = true;
+                    break;
+                }
+            }
+        }
+        }
+
+        if(!HACKNET_MANAGER_RUNNING) {
+            //TODO put code here to launch hacknet manager
+        }
         //get target for batch, hardcoded for right now
         let target = 'n00dles'
         //if target is not prepped, prep it
