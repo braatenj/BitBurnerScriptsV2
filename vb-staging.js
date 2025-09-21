@@ -13,6 +13,6 @@ export async function main(ns) {
  
 
   if (getCurrentBitnode(ns) == 1) {
-    ns.spawn("BN1/batcherv1", { threads: 1, spawnDelay: 1500 });
+    ns.spawn("BN1/batcherv1.js", { threads: 1, spawnDelay: 1500 });
   }
 }

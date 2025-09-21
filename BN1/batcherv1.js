@@ -18,7 +18,7 @@ export async function main(ns) {
   let HACKNET_CORE_LIMIT = 8;
   let HACKNET_SPEND_LIMIT = 0.05;
   let HACKNET_MANAGER_RUNNING = false;
-  let SERVER_MIN_MEMORY_POWER = 5;
+  let SERVER_MIN_MEMORY = 32;
   let SERVER_SPEND_LIMIT = 0.1;
   let SERVER_MANAGER_RUNNING = false;
 
@@ -40,7 +40,7 @@ export async function main(ns) {
         for(const block of pRam) {
             if(block.ram > 5.35) {
                 ns.scp("server-manager.js", block.server, "home");
-                let pid = ns.exec("server-manager.js", block.server, 1);
+                let pid = ns.exec("server-manager.js", block.server, 1, SERVER_MIN_MEMORY, SERVER_SPEND_LIMIT);
                 if(pid != 0) {
                     SERVER_MANAGER_RUNNING = true;
                     break;
