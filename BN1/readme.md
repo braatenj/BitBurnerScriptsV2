@@ -11,9 +11,10 @@ When first starting out the game and you are in bitnode 1 with no source files, 
 
 ### Current Problems To Solve
 
+- Calculate best target/most amount to steal from target (currently it just hard coded to n00dles and 10% of max which is problematic early and late game)
 - Manage Factions
 - Manage Purchasing Servers
-    - Manage Upgrading Servers
+  - Manage Upgrading Servers
 - Manage Purchasing Augmentations
 - Manage Stock Market
 - Manage Crimes
