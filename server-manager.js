@@ -34,7 +34,7 @@ export async function main(ns) {
 
 function getLargestPurchasableServer(ns, spendLimit) {
   let maxSpend = ns.getServerMoneyAvailable("home") * spendLimit;
-  ns.printf("MaxSpend: %d", ns.formatNumber(maxSpend));
+  ns.printf("MaxSpend: %s", ns.formatNumber(maxSpend));
   let ramAfforded = 0;
   for (let i = 0; i <= 20; i++) {
     let ram = 2 ** i;
