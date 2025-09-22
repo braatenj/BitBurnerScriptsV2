@@ -478,7 +478,7 @@ function calculateBestTarget(ns, servers) {
       let targetMaxMoney = Math.max(ns.getServerMaxMoney(server), 1);
       let targetWeakenTime = ns.getWeakenTime(server);
       let hackPerThreads = ns.hackAnalyze(server);
-      let targetMaxHackThreads = Math.floor(snapshot.maxSizeBlock() / 1.7);
+      let targetMaxHackThreads = Math.floor(snapshot.maxSizeBlock / 1.7);
       let targetMaxAmountStolen =
         targetMaxHackThreads * hackPerThreads * targetMaxMoney;
       let targetMoneyPerSecond =
