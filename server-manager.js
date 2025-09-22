@@ -35,19 +35,12 @@ export async function main(ns) {
 
 function getLargestPurchasableServer(ns, spendLimit) {
   let maxSpend = ns.getServerMoneyAvailable("home") * spendLimit;
-  ns.printf("MaxSpend: %s", ns.formatNumber(maxSpend));
   let ramAfforded = 0;
   for (let i = 0; i <= 20; i++) {
     let ram = 2 ** i;
     let serverCost = ns.getPurchasedServerCost(ram);
     if (serverCost <= maxSpend) {
       ramAfforded = ram;
-      ns.printf(
-        "Found Affordable Server - Ram: %s Cost: %s MaxSpend: %s",
-        ns.formatRam(ramAfforded),
-        ns.formatNumber(serverCost),
-        ns.formatNumber(spendLimit)
-      );
     }
   }
 

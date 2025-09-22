@@ -64,7 +64,7 @@ export async function main(ns) {
       //TODO put code here to launch hacknet manager
     }
     //get target for batch, hardcoded for right now
-    let target = "n00dles";
+    let target = calculateBestTarget(ns, getAllServers(ns));
     //if target is not prepped, prep it
     while (!isPrepped(ns, target)) {
       ns.tprintf("Prepping %s", target);
@@ -464,4 +464,31 @@ async function scheduleBatch(ns, target, game) {
       JSON.stringify(job)
     );
   }
+}
+
+function calculateBestTarget(ns, servers) {
+  let snapshot = new RamSnapshot(ns, servers);
+  let target;
+  let highestMPS = 0;
+  for (const server of servers) {
+    let playerHacking = ns.getHackingLevel();
+    let serverRequiredHacking = ns.getServerRequiredHackingLevel(server);
+
+    if (playerHacking > serverRequiredHacking && ns.hasRootAccess(server)) {
+      let targetMaxMoney = Math.max(ns.getServerMaxMoney(server), 1);
+      let targetWeakenTime = ns.getWeakenTime(server);
+      let hackPerThreads = ns.hackAnalyze(server);
+      let targetMaxHackThreads = Math.floor(snapshot.maxSizeBlock() / 1.7);
+      let targetMaxAmountStolen =
+        targetMaxHackThreads * hackPerThreads * targetMaxMoney;
+      let targetMoneyPerSecond =
+        targetMaxAmountStolen / (targetWeakenTime / 1000);
+      if (targetMoneyPerSecond > highestMPS) {
+        highestMPS = targetMoneyPerSecond;
+        target = server;
+      }
+    }
+  }
+
+  return target;
 }
