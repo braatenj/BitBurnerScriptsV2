@@ -5,11 +5,14 @@ export async function main(ns) {
 
   if (target === "ALL") {
     let servers = getAllServers();
-    let row = "%-20s | %-15s | %-15s | %-10t | %-10t";
-    let rowHeader = "%-20s | %-15s | %-15s | %-10s | %-10s";
-    ns.tprintf(rowHeader, "Hostname", "Money", "Security", "Root", "Backdoor");
+    servers.sort((a, b) => {
+      return ns.getServerMaxRam(a) - ns.getServerMaxRam(b);
+    })
+    let row = "%-20s | %-15s | %-15s | %-15s | %-10t | %-10t";
+    let rowHeader = "%-20s | %-15s | %-15s | %-15s| %-10s | %-10s";
+    ns.tprintf(rowHeader, "Hostname", "Money", "Security", "Ram", "Root", "Backdoor");
     ns.tprintf(
-      "--------------------------------------------------------------------------------"
+      "-----------------------------------------------------------------------------------------------"
     );
     for (let i = 0; i < servers.length; i++) {
       let server = ns.getServer(servers[i]);
@@ -21,6 +24,7 @@ export async function main(ns) {
         ns.formatNumber(server.hackDifficulty, 2) +
         "/" +
         ns.formatNumber(server.minDifficulty, 2);
+        let ramString = ns.formatNumber(server.maxRam)
       ns.tprintf(
         row,
         server.hostname,
