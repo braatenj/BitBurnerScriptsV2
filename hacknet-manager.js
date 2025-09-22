@@ -39,24 +39,33 @@ export async function main(ns) {
     for (let i = 0; i < ns.hacknet.numNodes(); i++) {
       let node = ns.hacknet.getNodeStats(i);
       if (node.level < HACKNET_LEVEL_LIMIT) {
-        if(ns.hacknet.getLevelUpgradeCost(i) < ns.getServerMoneyAvailable("home") * HACKNET_SPEND_LIMIT) {
+        if (
+          ns.hacknet.getLevelUpgradeCost(i) <
+          ns.getServerMoneyAvailable("home") * HACKNET_SPEND_LIMIT
+        ) {
           ns.hacknet.upgradeLevel(i);
         }
       }
 
       if (node.cores < HACKNET_CORE_LIMIT) {
-        if(ns.hacknet.getCoreUpgradeCost(i) < ns.getServerMoneyAvailable("home") * HACKNET_SPEND_LIMIT) {
+        if (
+          ns.hacknet.getCoreUpgradeCost(i) <
+          ns.getServerMoneyAvailable("home") * HACKNET_SPEND_LIMIT
+        ) {
           ns.hacknet.upgradeCore(i);
         }
       }
 
       if (node.ram < HACKNET_RAM_LIMIT) {
-        if(ns.hacknet.getRamUpgradeCost(i) < ns.getServerMoneyAvailable("home") * HACKNET_SPEND_LIMIT) {
+        if (
+          ns.hacknet.getRamUpgradeCost(i) <
+          ns.getServerMoneyAvailable("home") * HACKNET_SPEND_LIMIT
+        ) {
           ns.hacknet.upgradeRam(i);
         }
       }
     }
 
-    await ns.sleep(1000*60);
+    await ns.sleep(1000 * 60);
   }
 }

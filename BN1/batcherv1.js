@@ -19,10 +19,10 @@ const CRACKS = [
 /** @param {NS} ns */
 export async function main(ns) {
   //define some values to be used in the program
-  let HACKNET_NODE_LIMIT = 16;
-  let HACKNET_LEVEL_LIMIT = 32;
-  let HACKNET_RAM_LIMIT = 32;
-  let HACKNET_CORE_LIMIT = 8;
+  let HACKNET_NODE_LIMIT = 8;
+  let HACKNET_LEVEL_LIMIT = 16;
+  let HACKNET_RAM_LIMIT = 1;
+  let HACKNET_CORE_LIMIT = 1;
   let HACKNET_SPEND_LIMIT = 0.05;
   let HACKNET_MANAGER_RUNNING = false;
   let SERVER_MIN_MEMORY = 32;
@@ -61,9 +61,29 @@ export async function main(ns) {
     }
 
     if (!HACKNET_MANAGER_RUNNING) {
-      //TODO put code here to launch hacknet manager
+      let snapshot = new RamSnapshot(ns, getAllServers(ns));
+      let pRam = snapshot.copyBlocks();
+      for (const block of pRam) {
+        if (block.ram > 5.35) {
+          ns.scp("hacknet-manager.js", block.server, "home");
+          let pid = ns.exec(
+            "hacknet-manager.js",
+            block.server,
+            1,
+            HACKNET_NODE_LIMIT,
+            HACKNET_LEVEL_LIMIT,
+            HACKNET_RAM_LIMIT,
+            HACKNET_CORE_LIMIT,
+            HACKNET_SPEND_LIMIT
+          );
+          if (pid != 0) {
+            SERVER_MANAGER_RUNNING = true;
+            break;
+          }
+        }
+      }
     }
-    //get target for batch, hardcoded for right now
+    //get target for batch
     let target = calculateBestTarget(ns, getAllServers(ns));
     //if target is not prepped, prep it
     while (!isPrepped(ns, target)) {
