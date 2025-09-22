@@ -20,6 +20,7 @@ export async function main(ns) {
       );
       if (getLargestPurchasableServer(ns, spendLimit) >= baseRam) {
         baseRam = getLargestPurchasableServer(ns, spendLimit);
+        ns.printf("Purchasing %dGB server", baseRam);
         ns.purchaseServer(
           serverPrefix,
           getLargestPurchasableServer(ns, spendLimit)
