@@ -77,7 +77,7 @@ export async function main(ns) {
             HACKNET_SPEND_LIMIT
           );
           if (pid != 0) {
-            SERVER_MANAGER_RUNNING = true;
+            HACKNET_MANAGER_RUNNING = true;
             break;
           }
         }
