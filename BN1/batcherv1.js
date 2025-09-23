@@ -18,13 +18,15 @@ const CRACKS = [
 
 /** @param {NS} ns */
 export async function main(ns) {
-  //define some values to be used in the program
+  //define hacknet limits for the manager, these dfeaults allow you to get the netburners invite for easy augs
   let HACKNET_NODE_LIMIT = 8;
   let HACKNET_LEVEL_LIMIT = 16;
   let HACKNET_RAM_LIMIT = 1;
   let HACKNET_CORE_LIMIT = 1;
   let HACKNET_SPEND_LIMIT = 0.05;
   let HACKNET_MANAGER_RUNNING = false;
+
+  //define defaults for server manager, no need to buy servers with less than 32GB ram
   let SERVER_MIN_MEMORY = 32;
   let SERVER_SPEND_LIMIT = 0.1;
   let SERVER_MANAGER_RUNNING = false;
