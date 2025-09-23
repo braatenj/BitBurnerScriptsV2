@@ -234,7 +234,7 @@ class BatchDetails {
     this.security = ns.getServerSecurityLevel(server);
     this.weakTime = ns.getWeakenTime(server);
     this.prepped = isPrepped(ns, server); //is the server this batch is targeting prepped?
-    this.greed = 0.1; //how much of the servers money are we taking, default to low value, will calculate with function later
+    this.greed = 0.05; //how much of the servers money are we taking, default to low value, will calculate with function later
     this.jobBuffer = 15; //how many msec between each job finishing
     //things to add/use in the future
     this.hackChance = 0;
