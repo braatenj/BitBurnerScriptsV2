@@ -66,7 +66,7 @@ export async function main(ns) {
       let snapshot = new RamSnapshot(ns, getAllServers(ns));
       let pRam = snapshot.copyBlocks();
       for (const block of pRam) {
-        if (block.ram > 5.35) {
+        if (block.ram > 5.7) {
           ns.scp("hacknet-manager.js", block.server, "home");
           let pid = ns.exec(
             "hacknet-manager.js",
