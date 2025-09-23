@@ -7,10 +7,18 @@ export async function main(ns) {
     let servers = getAllServers();
     servers.sort((a, b) => {
       return ns.getServerMaxRam(a) - ns.getServerMaxRam(b);
-    })
+    });
     let row = "%-20s | %-15s | %-15s | %-15s | %-10t | %-10t";
     let rowHeader = "%-20s | %-15s | %-15s | %-15s| %-10s | %-10s";
-    ns.tprintf(rowHeader, "Hostname", "Money", "Security", "Ram", "Root", "Backdoor");
+    ns.tprintf(
+      rowHeader,
+      "Hostname",
+      "Money",
+      "Security",
+      "Ram",
+      "Root",
+      "Backdoor"
+    );
     ns.tprintf(
       "-----------------------------------------------------------------------------------------------"
     );
@@ -24,12 +32,13 @@ export async function main(ns) {
         ns.formatNumber(server.hackDifficulty, 2) +
         "/" +
         ns.formatNumber(server.minDifficulty, 2);
-        let ramString = ns.formatNumber(server.maxRam)
+      let ramString = ns.formatNumber(server.maxRam);
       ns.tprintf(
         row,
         server.hostname,
         moneyString,
         securityString,
+        ramString,
         server.hasAdminRights,
         server.backdoorInstalled
       );

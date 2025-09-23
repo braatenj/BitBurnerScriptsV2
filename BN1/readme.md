@@ -11,13 +11,14 @@ When first starting out the game and you are in bitnode 1 with no source files, 
 
 ### Current Problems To Solve
 
+- better logic around hacking targets and prepping others, currently target is selected and if it is not prepped devotes everything to prepping it, stopping all hacking until it is prepped. Prepping a new target can take quite a while.
 - Manage Factions
 - Manage Purchasing Servers
-    - Manage Upgrading Servers
+  - Manage Upgrading Servers
 - Manage Purchasing Augmentations
 - Manage Stock Market
 - Manage Crimes
-- batcherv1 sending bad timing data during prep of target, ultimate it doesn't break anything but it shouldn't be doing that
+- batcherv1 sending bad timing data during prep of target, ultimately it doesn't break anything but it shouldn't be doing that
 
 #### Factions
 

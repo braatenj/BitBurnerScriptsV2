@@ -1,21 +1,30 @@
 export async function main(ns) {
-  ns.disableLog('ALL');
+  ns.disableLog("ALL");
   let serverPrefix = "pserv";
   let baseRam = ns.args[0];
   let maxRam = ns.getPurchasedServerMaxRam();
   let spendLimit = ns.args[1];
   let serverLimit = ns.getPurchasedServerLimit();
-  let moneyToSpend = ns.getServerMoneyAvailable("home") * spendLimit;
-  ns.printf("Starting Server Manager, base ram: %s, spend limit: %d, MoneyToSpend: %s", ns.formatRam(baseRam), spendLimit, ns.formatNumber(moneyToSpend));
+  ns.printf(
+    "Starting Server Manager, base ram: %s, spend limit: %d, MoneyToSpend: %s",
+    ns.formatRam(baseRam),
+    spendLimit,
+    ns.formatNumber(ns.getServerMoneyAvailable("home") * spendLimit)
+  );
 
   while (true) {
     let purchasedServers = ns.getPurchasedServers();
     if (purchasedServers.length < serverLimit) {
-      ns.print('Not at limit for purchased servers. Checking if we can purchase one larger than our smallest');
+      ns.print(
+        "Not at limit for purchased servers. Checking if we can purchase one larger than our smallest"
+      );
       if (getLargestPurchasableServer(ns, spendLimit) >= baseRam) {
-
         baseRam = getLargestPurchasableServer(ns, spendLimit);
-        ns.purchaseServer(serverPrefix, getLargestPurchasableServer(ns, spendLimit));
+        ns.printf("Purchasing %dGB server", baseRam);
+        ns.purchaseServer(
+          serverPrefix,
+          getLargestPurchasableServer(ns, spendLimit)
+        );
       }
     }
 
@@ -26,18 +35,14 @@ export async function main(ns) {
 
 function getLargestPurchasableServer(ns, spendLimit) {
   let maxSpend = ns.getServerMoneyAvailable("home") * spendLimit;
-  ns.printf('MaxSpend: %d, Current Money: %s', maxSpend, ns.getServerMoneyAvailable("home"));
   let ramAfforded = 0;
   for (let i = 0; i <= 20; i++) {
     let ram = 2 ** i;
-    ns.printf('Checking Ram: %d', ram);
     let serverCost = ns.getPurchasedServerCost(ram);
     if (serverCost <= maxSpend) {
-      
       ramAfforded = ram;
-      ns.printf('Found Affordable Server - Ram: %s Cost: %s MaxSpend: %s', ns.formatRam(ramAfforded), ns.formatNumber(serverCost), ns.formatNumber(spendLimit));
     }
   }
-  
+
   return ramAfforded;
 }
