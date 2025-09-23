@@ -23,6 +23,7 @@ export async function main(ns) {
       }
 
       if (allNodesMaxed) {
+        ns.tprint("Hacknet Manager Exiting: All Nodes Maxed");
         ns.exit();
       }
     }

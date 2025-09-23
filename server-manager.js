@@ -13,6 +13,7 @@ export async function main(ns) {
   );
 
   while (true) {
+    //TODO check first if we can upgrade each server to the next tier
     let purchasedServers = ns.getPurchasedServers();
     if (purchasedServers.length < serverLimit) {
       ns.print(

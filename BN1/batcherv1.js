@@ -50,7 +50,7 @@ export async function main(ns) {
           let pid = ns.exec(
             "server-manager.js",
             block.server,
-            1,
+            { threads: 1, temporary: true },
             SERVER_MIN_MEMORY,
             SERVER_SPEND_LIMIT
           );
@@ -71,7 +71,7 @@ export async function main(ns) {
           let pid = ns.exec(
             "hacknet-manager.js",
             block.server,
-            1,
+            { threads: 1, temporary: true },
             HACKNET_NODE_LIMIT,
             HACKNET_LEVEL_LIMIT,
             HACKNET_RAM_LIMIT,
