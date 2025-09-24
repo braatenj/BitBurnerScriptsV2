@@ -15,6 +15,19 @@ export async function main(ns) {
   while (true) {
     //TODO check first if we can upgrade each server to the next tier
     let purchasedServers = ns.getPurchasedServers();
+    if (purchasedServers.length > 0) {
+      for (const server of purchasedServers) {
+        let currentRam = ns.getServerMaxRam(server);
+        let upgradedRam = Math.min(currentRam * 2, maxRam);
+        let upgradeCost = ns.getPurchasedServerUpgradeCost(server, upgradedRam);
+        let maxSpend = ns.getServerMoneyAvailable("home") * spendLimit;
+        if (upgradeCost <= maxSpend) {
+          ns.printf("Upgrading %s to %d ram", server, upgradedRam);
+          ns.upgradePurchasedServer(server, upgradedRam);
+        }
+      }
+    }
+
     if (purchasedServers.length < serverLimit) {
       ns.print(
         "Not at limit for purchased servers. Checking if we can purchase one larger than our smallest"
