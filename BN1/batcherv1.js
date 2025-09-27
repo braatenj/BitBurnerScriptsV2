@@ -490,9 +490,10 @@ async function scheduleBatch(ns, target, game) {
 
 function calculateBestTarget(ns, servers) {
   let snapshot = new RamSnapshot(ns, servers);
-  let target;
+  let target = "n00dles";
   let highestMPS = 0;
   for (const server of servers) {
+    if (!isPrepped(ns, server)) continue;
     let playerHacking = ns.getHackingLevel();
     let serverRequiredHacking = ns.getServerRequiredHackingLevel(server);
 
@@ -513,4 +514,24 @@ function calculateBestTarget(ns, servers) {
   }
 
   return target;
+}
+
+function calculateBestPrepTarget(ns, servers) {
+  let snapshot = new RamSnapshot(ns, servers);
+  let target = "n00dles";
+  let mode = snapshot.totalRamMax < 2048 ? "ram" : "time";
+  let greed = 0.99;
+  let greedLimit = 0.01;
+  let greedIncrement = 0.01;
+  let totalBatchRam = 0;
+  let totalBatchTime = 0;
+  let moneyPerRam = 0;
+  let moneyPerTime = 0;
+
+  for (greed; greed > greedLimit; greed--) {
+    let hackPerThreads = 0;
+  }
+
+  for (const server of servers) {
+  }
 }
